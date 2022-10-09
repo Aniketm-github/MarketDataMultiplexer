@@ -18,6 +18,6 @@ add_executable (MarketDataMultiplexer "main.cpp"
 "MarketDataStock.h"
 "MarketDataOrderVerifier.cpp"
 "MarketDataOrderVerifier.h"
-)
+ "SPSCQueue.h")
 
 # TODO: Add tests and install targets if needed.

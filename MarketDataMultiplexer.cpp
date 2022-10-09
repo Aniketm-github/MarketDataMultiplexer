@@ -39,6 +39,11 @@ void MarketDataMultiplexer::write_to_output_file() {
         return;
     }
     while (!exit_thread) {
+        //while (_stock_ticks.size()) {
+        //    file << _stock_ticks.front() << '\n';
+        //    _stock_ticks.pop();
+        //}
+
         unique_lock lock(_mtx_synch_stock_queue);
         _cv_synch_stock_queue.wait(lock, [&] { return !_ready_to_fill_stock_queue; });
         // at this moment if queue is empty, it means all the data is written into file and 
@@ -46,6 +51,8 @@ void MarketDataMultiplexer::write_to_output_file() {
         if (_writer_stock_tick.size() > 0) {
             // flushes the queue into output.txt
             while (_writer_stock_tick.size()) {
+                //auto& entry = _writer_stock_tick.front();
+                //file << entry.get_stock_name() << ", " << entry.get_tick_info() << '\n';
                 file << _writer_stock_tick.front() << '\n';
                 _writer_stock_tick.pop();
             }
@@ -72,6 +79,7 @@ void MarketDataMultiplexer::read_from_input_files() {
                 auto size = tick_entries.size();
                 // Push entry into pq and increament the count
                 for (auto& entry : tick_entries) {
+                    //_pq.emplace(make_unique<MarketDataEntry>(entry, ptr.get()));
                     _pq.emplace(entry, ptr.get());
                 }
                 ptr->update_pending_entries_in_pq(static_cast<int>(size));
@@ -86,7 +94,8 @@ void MarketDataMultiplexer::read_from_input_files() {
                 auto& entry = _pq.top();
                 entry.second->update_pending_entries_in_pq(-1);
                 _reader_stock_tick.emplace(entry.second->get_stock_name() + ", " + entry.first);
-                _pq.pop();
+                //_stock_ticks.emplace(entry.second->get_stock_name() + ", " + entry.first);
+                _pq.pop();                
             }
             // Wait till write operation is completed
             if (_reader_stock_tick.size() > 0 && _is_write_queue_empty) {
